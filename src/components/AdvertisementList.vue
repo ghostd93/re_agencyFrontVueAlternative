@@ -76,6 +76,7 @@
 
 <script>
     export default {
+        name: "AdvertisementList",
         data() {
             return{
                 items: [],

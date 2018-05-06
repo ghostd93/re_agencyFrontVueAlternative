@@ -10,6 +10,10 @@ import env from './env'
 import axios from 'axios'
 
 axios.defaults.baseURL = env.API_URL
+axios.defaults.headers.common = {
+    "Accept": "application/json",
+    "Content-Type": "application/json"
+};
 window.axios = axios
 
 

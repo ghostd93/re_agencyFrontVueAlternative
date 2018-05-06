@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import AdvertisementList from '@/components/AdvertisementList'
+import Advertisement from '@/components/Advertisement'
 
 Vue.use(Router);
 
@@ -12,6 +13,11 @@ export default new Router({
             path: '/',
             name: 'AdvertisementList',
             component: AdvertisementList
+        },
+        {
+            path: '/advertisement/:id',
+            name: 'Advertisement',
+            component: Advertisement
         }
     ]
 })
