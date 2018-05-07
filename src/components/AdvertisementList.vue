@@ -4,14 +4,14 @@
             <v-flex xs12>
                 <v-container fill-height>
                     <v-layout row wrap>
-                        <v-flex xs12  md2 lg2 v-for="item in items" :key="item.id" class="mx-2">
-                            <v-card hover>
+                        <v-flex xs12  md3 lg3 v-for="item in items" :key="item.id" class="mx-2 mb-5">
+                            <v-card hover @click.native="showAdvert(item.id)">
                                 <v-container>
                                     <v-layout row wrap>
-                                        <v-flex xs6 md12 lg12>
-                                            <img class="image" :src="item.photos[0].url" />
+                                        <v-flex xs12 md12 lg12>
+                                            <img class="image" :src="item.photos[0].thumb_url" />
                                         </v-flex>
-                                        <v-flex xs6 md12 lg12>
+                                        <v-flex xs12 md12 lg12>
                                             <p class="desc">
                                                 {{ item.type }} - {{ item.property.property_type }} - {{ item.property.city }}
                                             </p>
@@ -25,7 +25,12 @@
             </v-flex>
             <v-flex xs12>
                 <div class="text-xs-center">
-                    <v-pagination :length="pagination.last_page" v-model="pagination.current_page" @input="getAdverts"></v-pagination>
+                    <v-pagination
+                            color="blue"
+                            :length="pagination.last_page"
+                            v-model="pagination.current_page"
+                            @input="getAdverts"
+                    ></v-pagination>
                 </div>
             </v-flex>
         </v-layout>
@@ -62,14 +67,12 @@
     }
 
     .desc {
-        clear: both;
-        width: 200px;
+        width: 100%;
+        font-size: 13px;
     }
 
     .image {
-        clear: both;
-        width: 200px;
-        height: 200px;
+        width: 100%;
     }
 
 </style>
@@ -105,6 +108,12 @@
                     this.pagination.last_page = response.data.last_page;
                     this.pagination.current_page = response.data.current_page;
                 })
+            },
+            showAdvert(id){
+                this.$router.push({
+                    'name': 'Advertisement',
+                    'params': { id: id }
+                });
             }
         },
         created() {
