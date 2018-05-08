@@ -9,13 +9,12 @@ import env from './env'
 
 import axios from 'axios'
 
-axios.defaults.baseURL = env.API_URL
+axios.defaults.baseURL = env.API_URL;
 axios.defaults.headers.common = {
     "Accept": "application/json",
     "Content-Type": "application/json"
 };
-window.axios = axios
-
+window.axios = axios;
 
 Vue.use(Vuetify, { theme: {
   primary: '#ee44aa',
@@ -25,9 +24,9 @@ Vue.use(Vuetify, { theme: {
   info: '#2196F3',
   success: '#4CAF50',
   warning: '#FFC107'
-}})
+}});
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 
 /* eslint-disable no-new */
 new Vue({
@@ -35,4 +34,4 @@ new Vue({
   router,
   components: { App },
   template: '<App/>'
-})
+});
