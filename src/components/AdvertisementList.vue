@@ -5,7 +5,7 @@
                 <v-container fill-height>
                     <v-layout row wrap>
                         <v-flex xs12  md3 lg3 v-for="item in items" :key="item.id" class="mx-2 mb-5">
-                            <v-card hover @click.native="showAdvert(item.id)">
+                            <v-card>
                                 <v-container>
                                     <v-layout row wrap>
                                         <v-flex xs12 md12 lg12>
@@ -23,16 +23,7 @@
                     </v-layout>
                 </v-container>
             </v-flex>
-            <v-flex xs12>
-                <div class="text-xs-center">
-                    <v-pagination
-                            color="blue"
-                            :length="pagination.last_page"
-                            v-model="pagination.current_page"
-                            @input="getAdverts"
-                    ></v-pagination>
-                </div>
-            </v-flex>
+
         </v-layout>
     </v-container>
 </template>
@@ -78,46 +69,17 @@
 </style>
 
 <script>
+
+    import { mapGetters, mapActions } from 'vuex'
+
     export default {
         name: "AdvertisementList",
-        data() {
-            return{
-                items: [],
-                pagination: {
-                    current_page: String,
-                    first_page_url: String,
-                    last_page_url: String,
-                    next_page_url: String,
-                    prev_page_url: String,
-                    last_page: String,
-                    from: String,
-                    to: String
-                }
-            }
-        },
-        methods: {
-            getAdverts(page) {
-                axios('advertisement?page=' + page).then((response) => {
-                    this.items = response.data.data;
-                    this.pagination.first_page_url = response.data.first_page_url;
-                    this.pagination.last_page_url = response.data.last_page_url;
-                    this.pagination.next_page_url = response.data.next_page_url;
-                    this.pagination.prev_page_url = response.data.prev_page_url;
-                    this.pagination.from = response.data.from;
-                    this.pagination.to = response.data.to;
-                    this.pagination.last_page = response.data.last_page;
-                    this.pagination.current_page = response.data.current_page;
-                })
-            },
-            showAdvert(id){
-                this.$router.push({
-                    'name': 'Advertisement',
-                    'params': { id: id }
-                });
-            }
-        },
-        created() {
-            this.getAdverts(1);
+        computed: mapGetters({
+            items: 'advertisementsByPage'
+        }),
+
+        created(){
+            this.$store.dispatch('getAdvertisementsByPage', 0)
         }
 
     }

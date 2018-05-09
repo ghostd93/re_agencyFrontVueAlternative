@@ -1,7 +1,9 @@
 <template>
+    <transition name="fade">
     <div id="modal-mask" v-show="display">
         <img :src="src" />
     </div>
+    </transition>
 </template>
 
 <script>
@@ -36,5 +38,14 @@
         transition: opacity .3s ease;
         align-items: center;
         justify-content: center;
+    }
+
+
+
+    .fade-enter-active, .fade-leave-active {
+        transition: opacity .5s
+    }
+    .fade-enter, .fade-leave-active {
+        opacity: 0
     }
 </style>
