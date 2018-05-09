@@ -4,7 +4,8 @@ const state = {
 }
 
 const getters = {
-    advertisementsByPage: state => state.advertisementsByPage
+    advertisementsByPage: state => state.advertisementsByPage,
+    pagination: state => state.page
 }
 
 const actions = {

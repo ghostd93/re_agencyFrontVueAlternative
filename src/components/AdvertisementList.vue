@@ -23,7 +23,16 @@
                     </v-layout>
                 </v-container>
             </v-flex>
-
+            <v-flex xs12>
+                <div class="text-xs-center">
+                    <v-pagination
+                    color="blue"
+                    :length="pagination.last_page"
+                    v-model="pagination.current_page"
+                    @input="getAdvertisementsByPage"
+                    ></v-pagination>
+                </div>
+            </v-flex>
         </v-layout>
     </v-container>
 </template>
@@ -75,9 +84,12 @@
     export default {
         name: "AdvertisementList",
         computed: mapGetters({
-            items: 'advertisementsByPage'
+            items: 'advertisementsByPage',
+            pagination: 'pagination'
         }),
-
+        methods: mapActions([
+            'getAdvertisementsByPage'
+        ]),
         created(){
             this.$store.dispatch('getAdvertisementsByPage', 0)
         }
