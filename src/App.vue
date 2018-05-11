@@ -91,10 +91,7 @@
             axios.interceptors.response.use(undefined, (err) => {
                 return new Promise(function (resolve, reject) {
                     if (err.status === 401 && err.config && !err.config.__isRetryRequest) {
-                        // if you ever get an unauthorized, logout the user
                         this.$store.dispatch("AUTH_LOGOUT");
-                        this.$router.push('/login');
-                        // you can also redirect to /login if needed !
                     }
                     throw err;
                 });
