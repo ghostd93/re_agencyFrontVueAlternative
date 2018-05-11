@@ -1,68 +1,20 @@
 <template>
     <v-app id="inspire">
         <v-navigation-drawer
-                :clipped="$vuetify.breakpoint.lgAndUp"
+                clipped
                 v-model="drawer"
                 fixed
                 app
         >
-            <v-list dense>
-                <template v-for="item in items">
-                    <v-layout
-                            v-if="item.heading"
-                            :key="item.heading"
-                            row
-                            align-center
-                    >
-                        <v-flex xs6>
-                            <v-subheader v-if="item.heading">
-                                {{ item.heading }}
-                            </v-subheader>
-                        </v-flex>
-                        <v-flex xs6 class="text-xs-center">
-                            <a href="#!" class="body-2 black--text">EDIT</a>
-                        </v-flex>
-                    </v-layout>
-                    <v-list-group
-                            v-else-if="item.children"
-                            v-model="item.model"
-                            :key="item.text"
-                            :prepend-icon="item.model ? item.icon : item['icon-alt']"
-                            append-icon=""
-                    >
-                        <v-list-tile slot="activator">
-                            <v-list-tile-content>
-                                <v-list-tile-title>
-                                    {{ item.text }}
-                                </v-list-tile-title>
-                            </v-list-tile-content>
-                        </v-list-tile>
-                        <v-list-tile
-                                v-for="(child, i) in item.children"
-                                :key="i"
-                                @click=""
-                        >
-                            <v-list-tile-action v-if="child.icon">
-                                <v-icon>{{ child.icon }}</v-icon>
-                            </v-list-tile-action>
-                            <v-list-tile-content>
-                                <v-list-tile-title>
-                                    {{ child.text }}
-                                </v-list-tile-title>
-                            </v-list-tile-content>
-                        </v-list-tile>
-                    </v-list-group>
-                    <v-list-tile v-else :key="item.text" @click="">
-                        <v-list-tile-action>
-                            <v-icon>{{ item.icon }}</v-icon>
-                        </v-list-tile-action>
-                        <v-list-tile-content>
-                            <v-list-tile-title>
-                                {{ item.text }}
-                            </v-list-tile-title>
-                        </v-list-tile-content>
-                    </v-list-tile>
-                </template>
+            <v-list>
+                <v-list-tile v-for="item in items" :key="item.title" @click="goto(item.destination)">
+                    <v-list-tile-action>
+                        <v-icon>{{ item.icon }}</v-icon>
+                    </v-list-tile-action>
+                    <v-list-tile-content>
+                        <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+                    </v-list-tile-content>
+                </v-list-tile>
             </v-list>
         </v-navigation-drawer>
         <v-toolbar
@@ -74,7 +26,7 @@
         >
             <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
                 <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-                <span class="hidden-sm-and-down">ReAgency</span>
+                <a @click="gotoHome">ReAgency</a>
             </v-toolbar-title>
             <v-text-field
                     flat
@@ -84,8 +36,11 @@
                     class="hidden-sm-and-down"
             ></v-text-field>
             <v-spacer></v-spacer>
-            <v-btn icon>
-                <v-icon>notifications</v-icon>
+            <v-btn color="info" v-show="!isLoggedIn" @click="loginForm=true">
+                Logowanie
+            </v-btn>
+            <v-btn color="info" v-show="isLoggedIn" @click="logout">
+                Wyloguj
             </v-btn>
         </v-toolbar>
         <v-content>
@@ -95,50 +50,60 @@
                 </v-layout>
             </v-container>
         </v-content>
+        <Login :display="loginForm && !isLoggedIn" v-on:close-click="loginForm=false"></Login>
     </v-app>
 </template>
 
 <script>
 
+    import { mapGetters } from 'vuex'
+    import Login from './components/Login'
+
     export default {
+        components: {Login},
         data: () => ({
-            dialog: false,
-            drawer: null,
+            drawer: false,
             items: [
-                {icon: 'contacts', text: 'Contacts'},
-                {icon: 'history', text: 'Frequently contacted'},
-                {icon: 'content_copy', text: 'Duplicates'},
-                {
-                    icon: 'keyboard_arrow_up',
-                    'icon-alt': 'keyboard_arrow_down',
-                    text: 'Labels',
-                    model: true,
-                    children: [
-                        {icon: 'add', text: 'Create label'}
-                    ]
-                },
-                {
-                    icon: 'keyboard_arrow_up',
-                    'icon-alt': 'keyboard_arrow_down',
-                    text: 'More',
-                    model: false,
-                    children: [
-                        {text: 'Import'},
-                        {text: 'Export'},
-                        {text: 'Print'},
-                        {text: 'Undo changes'},
-                        {text: 'Other contacts'}
-                    ]
-                },
-                {icon: 'settings', text: 'Settings'},
-                {icon: 'chat_bubble', text: 'Send feedback'},
-                {icon: 'help', text: 'Help'},
-                {icon: 'phonelink', text: 'App downloads'},
-                {icon: 'keyboard', text: 'Go to the old version'}
-            ]
+                { title: 'Dashboard', icon: 'dashboard', destination: '/dashboard'},
+                { title: 'Account', icon: 'account_box', destination: '/account'},
+                { title: 'Admin', icon: 'gavel', destination: '/admin'}
+            ],
+            loginForm: false
         }),
-        props: {
-            source: String
+        computed: mapGetters({
+            isLoggedIn: 'isAuthenticated',
+        }),
+        methods: {
+            goto(dest){
+                this.$router.push(dest);
+            },
+            logout(){
+                this.$store.dispatch('logout').then(() => {
+                    this.loginForm = false;
+                    this.$router.push('/');
+                });
+            },
+            gotoHome(){
+              this.$router.push('/');
+            }
+        },
+        created() {
+            axios.interceptors.response.use(undefined, (err) => {
+                return new Promise(function (resolve, reject) {
+                    if (err.status === 401 && err.config && !err.config.__isRetryRequest) {
+                        // if you ever get an unauthorized, logout the user
+                        this.$store.dispatch("AUTH_LOGOUT");
+                        this.$router.push('/login');
+                        // you can also redirect to /login if needed !
+                    }
+                    throw err;
+                });
+            });
         }
     }
 </script>
+<style scoped>
+    a {
+        color: #FFF
+    }
+</style>

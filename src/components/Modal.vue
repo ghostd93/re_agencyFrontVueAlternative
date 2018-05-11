@@ -1,8 +1,8 @@
 <template>
     <transition name="fade">
-    <div id="modal-mask" v-show="display">
-        <img :src="src" />
-    </div>
+        <div id="modal-mask" v-show="display">
+            <img :src="src" />
+        </div>
     </transition>
 </template>
 

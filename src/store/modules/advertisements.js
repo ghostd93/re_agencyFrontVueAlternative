@@ -26,11 +26,12 @@ const actions = {
 
                     commit("FETCH_PAGE", page);
                     commit("FETCH_ADVERTISEMENTS", response.data.data);
-                    resolve();
+                    resolve(response);
 
                 })
                 .catch((error => {
                     console.log(error.statusText);
+                    reject(error);
                 }));
         });
     }

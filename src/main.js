@@ -10,6 +10,11 @@ import store from './store'
 
 import axios from 'axios'
 
+const token = localStorage.getItem('user-token')
+if (token) {
+    axios.defaults.headers.common['Authorization'] = 'bearer ' + token
+}
+
 axios.defaults.baseURL = env.API_URL;
 axios.defaults.headers.common = {
     "Accept": "application/json",
