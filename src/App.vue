@@ -5,6 +5,7 @@
                 v-model="drawer"
                 fixed
                 app
+                disable-resize-watcher
         >
             <v-list>
                 <v-list-tile v-for="item in items" :key="item.title" @click="goto(item.destination)">
@@ -36,7 +37,10 @@
                     class="hidden-sm-and-down"
             ></v-text-field>
             <v-spacer></v-spacer>
-            <v-btn color="info" v-show="!isLoggedIn" @click="loginForm=true">
+            <v-btn color="info" v-show="!isLoggedIn" @click="() => {registerForm=true;drawer=false}">
+                Rejestracja
+            </v-btn>
+            <v-btn color="info" v-show="!isLoggedIn" @click="() => {loginForm=true;drawer=false}">
                 Logowanie
             </v-btn>
             <v-btn color="info" v-show="isLoggedIn" @click="logout">
@@ -51,6 +55,7 @@
             </v-container>
         </v-content>
         <Login :display="loginForm && !isLoggedIn" v-on:close-click="loginForm=false"></Login>
+        <Register :display="registerForm && !isLoggedIn" v-on:close-click="registerForm=false"></Register>
     </v-app>
 </template>
 
@@ -58,9 +63,10 @@
 
     import { mapGetters } from 'vuex'
     import Login from './components/Login'
+    import Register from './components/Register'
 
     export default {
-        components: {Login},
+        components: {Login, Register},
         data: () => ({
             drawer: false,
             items: [
@@ -68,7 +74,8 @@
                 { title: 'Account', icon: 'account_box', destination: '/account'},
                 { title: 'Admin', icon: 'gavel', destination: '/admin'}
             ],
-            loginForm: false
+            loginForm: false,
+            registerForm: false
         }),
         computed: mapGetters({
             isLoggedIn: 'isAuthenticated',
@@ -80,6 +87,7 @@
             logout(){
                 this.$store.dispatch('logout').then(() => {
                     this.loginForm = false;
+                    this.registerForm = false;
                     this.$router.push('/');
                 });
             },

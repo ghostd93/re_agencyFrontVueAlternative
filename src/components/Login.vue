@@ -24,7 +24,7 @@
                                     <v-text-field
                                             v-model="user.password"
                                             :rules="passwordRules"
-                                            label="Password"
+                                            label="Hasło"
                                             type="password"
                                             required
                                     ></v-text-field>
@@ -102,8 +102,6 @@
         align-items: center;
         justify-content: center;
     }
-
-
 
     .fade-enter-active, .fade-leave-active {
         transition: opacity .5s
