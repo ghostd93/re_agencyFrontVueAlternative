@@ -5,6 +5,8 @@ import Advertisement from '@/components/Advertisement'
 import Account from '@/components/Account'
 import store from '../store'
 import Users from '@/components/admin/Users'
+import Advertisements from '@/components/admin/Advertisements'
+import axios from 'axios'
 
 Vue.use(Router);
 
@@ -23,6 +25,15 @@ const ifAuthenticated = (to, from, next) => {
     }
     next('/');
 }
+
+axios.interceptors.response.use(response => {
+    return response;
+}, error => {
+    if (error.response.status === 401) {
+        store.dispatch('logout')
+    }
+    return error;
+});
 
 export default new Router({
 
@@ -48,6 +59,11 @@ export default new Router({
             path: '/users',
             name: 'Users',
             component: Users
+        },
+        {
+            path: '/advertisements',
+            name: 'Advertisements',
+            component: Advertisements
         },
     ]
 })

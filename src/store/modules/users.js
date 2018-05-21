@@ -20,6 +20,19 @@ const actions = {
                 reject(err)
             })
         })
+    },
+    deleteUser: ({commit, dispatch}, id) => {
+        commit('USERS_REQUEST')
+        return new Promise((resolve, reject) => {
+            axios({url: 'user/' + id, method: 'DELETE'}).then((resp => {
+                dispatch('fetchUsers')
+                commit('USERS_SUCCESS')
+                resolve(resp)
+            })).catch(err => {
+                commit('USERS_ERROR')
+                reject(err)
+            })
+        })
     }
 }
 

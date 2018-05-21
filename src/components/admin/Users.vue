@@ -1,14 +1,24 @@
 <template>
-    <b-table striped hover :items="users" :fields="fields">
-        <template slot="delete" slot-scope="data">
-            <b-btn variant="danger" @click.stop="log('dupa')">Usuń</b-btn>
-        </template>
-    </b-table>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <th>id</th>
+            <th>nazwa</th>
+            <th>email</th>
+            <th>usuń</th>
+            <tr v-for="(item, key) in users" :key="key">
+                <td>{{ item.id }}</td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.email }}</td>
+                <td><b-btn @click.stop="deleteUser(item.id)" variant="danger">Usuń</b-btn></td>
+            </tr>
+        </table>
+    </div>
+
 </template>
 
 <script>
 
-    import { mapGetters } from 'vuex'
+    import { mapGetters, mapActions } from 'vuex'
 
     export default {
         name: "Users",
@@ -27,9 +37,7 @@
             })
         },
         methods: {
-          log(str){
-              console.log(str)
-          },
+            ...mapActions(['deleteUser'])
         },
         created(){
             this.$store.dispatch('fetchUsers');

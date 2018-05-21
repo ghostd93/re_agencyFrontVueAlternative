@@ -39,7 +39,7 @@ const actions = {
                 }));
         });
     },
-    searchAdvertisement: ({commit}, query,pageNumber) => {
+    searchAdvertisement: ({commit}, query, pageNumber) => {
         return new Promise((resolve, reject) => {
             commit('ADV_REQUEST');
             axios('search?' + 'query=' + query + '&page=' + pageNumber).then((response) => {
