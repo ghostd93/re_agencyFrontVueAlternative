@@ -1,40 +1,22 @@
 <template>
-    <v-container fill-height text-xs-center>
-        <v-layout row wrap>
-            <v-flex xs12>
-                <v-container fill-height>
-                    <v-layout row wrap>
-                        <v-flex xs12  md3 lg3 v-for="item in items" :key="item.id" class="mx-2 mb-5">
-                            <v-card>
-                                <v-container>
-                                    <v-layout row wrap>
-                                        <v-flex xs12 md12 lg12>
-                                            <img class="image" :src="item.photos[0].thumb_url" />
-                                        </v-flex>
-                                        <v-flex xs12 md12 lg12>
-                                            <p class="desc">
-                                                {{ item.type }} - {{ item.property.property_type }} - {{ item.property.city }}
-                                            </p>
-                                        </v-flex>
-                                    </v-layout>
-                                </v-container>
-                            </v-card>
-                        </v-flex>
-                    </v-layout>
-                </v-container>
-            </v-flex>
-            <v-flex xs12>
-                <div class="text-xs-center">
-                    <v-pagination
-                    color="blue"
-                    :length="pagination.last_page"
+    <b-container fluid>
+        <b-row>
+            <b-col cols="2" v-for="(item, key) in items" :key="key">
+                <p>{{ item.date_of_announcement }}</p>
+            </b-col>
+        </b-row>
+        <b-row align-h="center">
+            <b-pagination
+                    size="md"
+                    :total-rows="100"
+                    :limit="pagination.last_page"
                     v-model="pagination.current_page"
-                    @input="getAdvertisementsByPage"
-                    ></v-pagination>
-                </div>
-            </v-flex>
-        </v-layout>
-    </v-container>
+                    :per-page="10"
+                    v-on:input="getAdvertisementsByPage(pagination.current_page)"
+            >
+            </b-pagination>
+        </b-row>
+    </b-container>
 </template>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -82,16 +64,27 @@
     import { mapGetters, mapActions } from 'vuex'
 
     export default {
+        data: () => ({
+
+        }),
         name: "AdvertisementList",
         computed: mapGetters({
             items: 'advertisementsByPage',
             pagination: 'pagination'
         }),
-        methods: mapActions([
+        watch: {
+
+        },
+        methods: {
+            ...mapActions([
             'getAdvertisementsByPage'
         ]),
+            gotoAdvert(id){
+                this.$router.push('/advertisement/' + id);
+            }
+        },
         created(){
-            this.$store.dispatch('getAdvertisementsByPage', 0)
+            this.$store.dispatch('getAdvertisementsByPage', 1)
         }
 
     }

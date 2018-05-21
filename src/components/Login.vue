@@ -1,51 +1,58 @@
 <template>
-    <transition name="fade">
-        <v-content v-show="display" id="login-mask">
-            <div v-show="status == 'error'">
-                <p>Niepoprawny login lub hasło</p>
-            </div>
-            <v-container fluid fill-height>
-                <v-layout align-center justify-center>
-                    <v-flex xs12 sm8 md4>
-                        <v-card class="elevation-12">
-                            <v-toolbar dark color="info">
-                                <v-toolbar-title>Logowanie</v-toolbar-title>
-                                <v-spacer></v-spacer>
-                                <a id="close" @click="$emit('close-click')"><v-icon color="white">close</v-icon></a>
-                            </v-toolbar>
-                            <v-card-text>
-                                <v-form ref="form" v-model="valid" lazy-validation>
-                                    <v-text-field
-                                            v-model="user.email"
-                                            :rules="emailRules"
-                                            label="Email"
-                                            required
-                                    ></v-text-field>
-                                    <v-text-field
-                                            v-model="user.password"
-                                            :rules="passwordRules"
-                                            label="Hasło"
-                                            type="password"
-                                            required
-                                    ></v-text-field>
-                                </v-form>
-                            </v-card-text>
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn
-                                        :disabled="!valid"
-                                        @click="submit"
-                                        color="info"
+    <div id="login-mask" v-show="display">
+        <b-modal
+                v-model="display"
+                busy no-close-on-backdrop
+                no-close-on-esc hide-footer
+                hide-backdrop hide-header
+                centered
+        >
+            <b-container fluid>
+                <b-row>
+                    <b-col cols="11">
+                        <h2>Logowanie</h2>
+                    </b-col>
+                    <b-col cols="1">
+                        <a @click="$emit('close-click')"><i class="fas fa-times"></i></a>
+                    </b-col>
+                </b-row>
+                <b-row>
+                    <b-col cols="12">
+                        <b-form @submit="submit">
+                            <b-form-group id="email"
+                                          label="Email:"
+                                          label-for="email"
+                            >
+                                <b-form-input id="email"
+                                              type="email"
+                                              v-model="user.email"
+                                              required
+                                              placeholder="wprowadź email">
+                                </b-form-input>
+                            </b-form-group>
+                            <b-form-group
+                                id="password"
+                                label="Hasło:"
+                                laber-for="password"
+                            >
+                                <b-form-input
+                                    id="password"
+                                    type="password"
+                                    v-model="user.password"
+                                    required
+                                    placeholder="podaj hasło"
                                 >
-                                    zaloguj
-                                </v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </v-flex>
-                </v-layout>
-            </v-container>
-        </v-content>
-    </transition>
+                                </b-form-input>
+                            </b-form-group>
+                            <b-form-group>
+                                <b-btn type="submit">Zaloguj się</b-btn>
+                            </b-form-group>
+                        </b-form>
+                    </b-col>
+                </b-row>
+            </b-container>
+        </b-modal>
+    </div>
 </template>
 
 <script>
@@ -56,29 +63,23 @@
         name: "Login",
         data() {
             return {
-                show: this.$props.display,
                 valid: false,
                 user:   {
                     password: '',
                     email: ''
                 },
-                passwordRules: [
-                    v => !!v || 'Wprowadź hasło',
-                ],
-                emailRules: [
-                    v => !!v || 'Email jest wymagany',
-                    v => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'Wprowadź poprawny email'
-                ]
             }
         },
         computed: mapGetters({
             status: 'authStatus'
         }),
         methods: {
-          submit(){
+          submit(evt){
+              evt.preventDefault();
               this.$store.dispatch('authenticate', this.user).then(() => {
                   //this.show = false;
               });
+              this.$store.dispatch('fetchUser');
           },
           close(){
 

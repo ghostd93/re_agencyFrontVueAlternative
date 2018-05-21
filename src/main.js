@@ -3,14 +3,18 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import Vuetify from 'vuetify'
-import 'vuetify/dist/vuetify.min.css'
 import env from './env'
 import store from './store'
+import BootstrapVue from 'bootstrap-vue'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+
+Vue.use(BootstrapVue);
 
 import axios from 'axios'
 
 const token = localStorage.getItem('user-token')
+
 if (token) {
     axios.defaults.headers.common['Authorization'] = 'bearer ' + token
 }
@@ -21,16 +25,6 @@ axios.defaults.headers.common = {
     "Content-Type": "application/json"
 };
 window.axios = axios;
-
-Vue.use(Vuetify, { theme: {
-  primary: '#ee44aa',
-  secondary: '#424242',
-  accent: '#82B1FF',
-  error: '#FF5252',
-  info: '#2196F3',
-  success: '#4CAF50',
-  warning: '#FFC107'
-}});
 
 Vue.config.productionTip = false;
 

@@ -3,8 +3,8 @@ import Router from 'vue-router'
 import AdvertisementList from '@/components/AdvertisementList'
 import Advertisement from '@/components/Advertisement'
 import Account from '@/components/Account'
-import Login from '@/components/Login'
 import store from '../store'
+import Users from '@/components/admin/Users'
 
 Vue.use(Router);
 
@@ -43,6 +43,11 @@ export default new Router({
             name: 'Account',
             component: Account,
             beforeEnter: ifAuthenticated
-        }
+        },
+        {
+            path: '/users',
+            name: 'Users',
+            component: Users
+        },
     ]
 })

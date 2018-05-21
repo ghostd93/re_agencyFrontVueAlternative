@@ -1,62 +1,58 @@
 <template>
-    <v-app id="inspire">
-        <v-navigation-drawer
-                clipped
-                v-model="drawer"
-                fixed
-                app
-                disable-resize-watcher
-        >
-            <v-list>
-                <v-list-tile v-for="item in items" :key="item.title" @click="goto(item.destination)">
-                    <v-list-tile-action>
-                        <v-icon>{{ item.icon }}</v-icon>
-                    </v-list-tile-action>
-                    <v-list-tile-content>
-                        <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-                    </v-list-tile-content>
-                </v-list-tile>
-            </v-list>
-        </v-navigation-drawer>
-        <v-toolbar
-                :clipped-left="$vuetify.breakpoint.lgAndUp"
-                color="blue darken-3"
-                dark
-                app
-                fixed
-        >
-            <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
-                <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-                <a @click="gotoHome">ReAgency</a>
-            </v-toolbar-title>
-            <v-text-field
-                    flat
-                    solo-inverted
-                    prepend-icon="search"
-                    label="Search"
-                    class="hidden-sm-and-down"
-            ></v-text-field>
-            <v-spacer></v-spacer>
-            <v-btn color="info" v-show="!isLoggedIn" @click="() => {registerForm=true;drawer=false}">
-                Rejestracja
-            </v-btn>
-            <v-btn color="info" v-show="!isLoggedIn" @click="() => {loginForm=true;drawer=false}">
-                Logowanie
-            </v-btn>
-            <v-btn color="info" v-show="isLoggedIn" @click="logout">
-                Wyloguj
-            </v-btn>
-        </v-toolbar>
-        <v-content>
-            <v-container fluid fill-height>
-                <v-layout justify-center align-center>
-                    <router-view></router-view>
-                </v-layout>
-            </v-container>
-        </v-content>
-        <Login :display="loginForm && !isLoggedIn" v-on:close-click="loginForm=false"></Login>
-        <Register :display="registerForm && !isLoggedIn" v-on:close-click="registerForm=false"></Register>
-    </v-app>
+    <div>
+        <div id="loading-mask" v-show="status === 'loading'">
+            <img :src="loader" />
+        </div>
+        <b-navbar toggleable="md" type="light" variant="faded">
+
+            <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
+
+            <b-navbar-brand @click="goto('/')">Strona główna</b-navbar-brand>
+
+            <b-collapse is-nav id="nav_collapse">
+
+                <b-navbar-nav>
+                    <b-nav-form>
+                        <b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search"/>
+                        <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
+                    </b-nav-form>
+
+                    <b-nav-item-dropdown right v-if="isAdmin()">
+                        <!-- Using button-content slot -->
+                        <template slot="button-content">
+                            <em>Administracja</em>
+                        </template>
+                        <b-dropdown-item @click="goto('/users')">Użytkownicy</b-dropdown-item>
+                        <b-dropdown-item @click="goto('/advertisements')">Ogłoszenia do akceptacji</b-dropdown-item>
+                    </b-nav-item-dropdown>
+
+                </b-navbar-nav>
+
+                <!-- Right aligned nav items -->
+                <b-navbar-nav class="ml-auto">
+
+                    <b-nav-item-dropdown right v-show="isLoggedIn">
+                        <!-- Using button-content slot -->
+                        <template slot="button-content">
+                            <em v-if="user != null">{{ user.email }}</em>
+                        </template>
+                        <b-dropdown-item @click="goto('/account')">Profil</b-dropdown-item>
+                        <b-dropdown-item @click="logout">Wyloguj</b-dropdown-item>
+                    </b-nav-item-dropdown>
+
+                    <b-nav-item @click="loginForm = true" v-show="!isLoggedIn">Zaloguj się</b-nav-item>
+
+                </b-navbar-nav>
+
+            </b-collapse>
+        </b-navbar>
+        <Login :display="loginForm && !isLoggedIn" v-on:close-click="loginForm=false" />
+        <b-container fluid>
+            <b-row>
+                <router-view></router-view>
+            </b-row>
+        </b-container>
+    </div>
 </template>
 
 <script>
@@ -68,6 +64,8 @@
     export default {
         components: {Login, Register},
         data: () => ({
+            loader: require('./assets/loader.gif'),
+            query: '',
             drawer: false,
             items: [
                 { title: 'Dashboard', icon: 'dashboard', destination: '/dashboard'},
@@ -75,12 +73,19 @@
                 { title: 'Admin', icon: 'gavel', destination: '/admin'}
             ],
             loginForm: false,
-            registerForm: false
+            registerForm: false,
         }),
-        computed: mapGetters({
-            isLoggedIn: 'isAuthenticated',
-        }),
+        computed: {
+            ...mapGetters({
+                isLoggedIn: 'isAuthenticated',
+                user: 'getUser',
+                status: 'advertsStatus'
+            }),
+        },
         methods: {
+            search(query, page){
+                this.$store.dispatch('searchAdvertisement', query, page);
+            },
             goto(dest){
                 this.$router.push(dest);
             },
@@ -93,22 +98,36 @@
             },
             gotoHome(){
               this.$router.push('/');
+            },
+            isAdmin(){
+                return (this.user != null && this.user.roles[0].role_name === 'administrator');
             }
         },
         created() {
-            axios.interceptors.response.use(undefined, (err) => {
-                return new Promise(function (resolve, reject) {
-                    if (err.status === 401 && err.config && !err.config.__isRetryRequest) {
-                        this.$store.dispatch("AUTH_LOGOUT");
-                    }
-                    throw err;
-                });
-            });
+            if(this.isLoggedIn){
+                this.$store.dispatch('fetchUser').then(()=>{
+
+                })
+            }
         }
     }
 </script>
 <style scoped>
     a {
         color: #FFF
+    }
+
+    #loading-mask {
+        display: flex;
+        position: fixed;
+        z-index: 9998;
+        width: 100vw;
+        height: 100vh;
+        left: 0;
+        top: 0;
+        background-color: rgba(0, 0, 0, .5);
+        transition: opacity .3s ease;
+        align-items: center;
+        justify-content: center;
     }
 </style>

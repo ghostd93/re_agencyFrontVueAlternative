@@ -13,6 +13,13 @@ const getters = {
 }
 
 const actions = {
+    register: ({commit}, user) => {
+        return new Promise((resolve, reject) => {
+            axios({url: 'auth/register', data: user, method: 'POST'}).then(resp => {
+                resolve(resp)
+            });
+        })
+    },
     authenticate: ({commit, dispatch}, user) => {
         return new Promise((resolve, reject) => {
             commit("AUTH_REQUEST");
@@ -22,7 +29,7 @@ const actions = {
                     localStorage.setItem('user-token', token);
                     axios.defaults.headers.common['Authorization'] = 'bearer ' + token;
                     const decoded = jwtDecode(token);
-                    axios({url:'user/' + decoded.user_id + '/personaldata', method: 'GET'}).then(resp =>{
+                    axios({url:'user/' + decoded.user_id, method: 'GET'}).then(resp =>{
                         commit("SET_USER", resp.data.data);
                     });
                     commit("AUTH_SUCCESS", token);
@@ -39,22 +46,29 @@ const actions = {
     logout: ({commit, dispatch}) => {
         return new Promise((resolve, reject) => {
             commit("AUTH_REQUEST");
-            commit("AUTH_LOGOUT");
             commit("SET_USER", null);
+            commit("AUTH_LOGOUT");
             localStorage.removeItem('user-token');
             delete axios.defaults.headers.common['Authorization'];
+            commit("AUTH_SUCCESS");
             resolve()
 
         })
     },
-    fetchUser: ({commit}, id) => {
+    fetchUser: ({commit}) => {
         return new Promise((resolve, reject) => {
-            axios({url: '/user/' + id, method: 'GET' })
+            commit("AUTH_REQUEST")
+            const token = state.token;
+            const decoded = jwtDecode(token);
+            axios.defaults.headers.common['Authorization'] = 'bearer ' + token;
+            axios({url: '/user/' + decoded.user_id, method: 'GET' })
                 .then(resp => {
-                    commit("SET_USER");
+                    commit("SET_USER", resp.data.data);
+                    commit("AUTH_SUCCESS", token)
                     resolve(resp);
                 })
                 .catch(err => {
+                    commit("AUTH_ERROR")
                     console.log(err);
                     reject(err);
                 });
